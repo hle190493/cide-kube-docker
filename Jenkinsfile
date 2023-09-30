@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         registry = "hle190493/vprofileweb"
-        registryCredentials = "dockerhub"
+        registryCredential = "dockerhub"
     }
 
     stages{
