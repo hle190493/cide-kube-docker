@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         registry = "hle190493/vprofileweb"
+        registryCredential = "dockerhub"
     }
 
     stages{
@@ -80,7 +81,7 @@ pipeline {
         stage('Upload Image'){
             steps{
                 script{
-                    docker.withRegistry('', dockerhub){
+                    docker.withRegistry('', 'registryCredential'){
                         dockerImage.push("V$BUILD_NUMBER")
                         dockerImage.push('latest')
                         }
