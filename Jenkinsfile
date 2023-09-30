@@ -1,11 +1,10 @@
 pipeline {
 
     agent any
-/*
 	tools {
         maven "maven3"
     }
-*/
+
     environment {
         registry = "hle190493/vprofileweb"
         registryCredentials = "dockerhub"
@@ -75,35 +74,35 @@ pipeline {
 
 
 
-    stage('Build App Image'){
-        steps{
-            script{
-                dockerImage = docker.build registry + ":V$BUILD_NUMBER"
-            }
-        }
-    }
-
-    stage('Upload Image'){
-        steps{
-            script{
-                docker.withRegistry('', registryCredential){
-                    dockerImage.push("V$BUILD_NUMBER")
-                    dockerImage.push('latest')
-            }
-        }
-    }
-
-    stage('Remove Unused docker image'){
-        steps{
-            sh "docker rmi $registry:V$BUILD_NUMBER"
-        }
-    }
-
-    stage('Kubernetes Deploy'){
-        agent{label 'kops'}
+        stage('Build App Image'){
             steps{
-                sh "helm upgrade --install --force vprofile-stack helm/vprofilecharts --set appimage=${registry}:V${BUILD_NUMBER} --namespace prod"
+                script{
+                    dockerImage = docker.build registry + ":V$BUILD_NUMBER"
+                }
             }
-    }
+        }
+
+        stage('Upload Image'){
+            steps{
+                script{
+                    docker.withRegistry('', registryCredential){
+                        dockerImage.push("V$BUILD_NUMBER")
+                        dockerImage.push('latest')
+                }
+            }
+        }
+
+        stage('Remove Unused docker image'){
+            steps{
+                sh "docker rmi $registry:V$BUILD_NUMBER"
+            }
+        }
+
+        stage('Kubernetes Deploy'){
+            agent{label 'kops'}
+                steps{
+                    sh "helm upgrade --install --force vprofile-stack helm/vprofilecharts --set appimage=${registry}:V${BUILD_NUMBER} --namespace prod"
+                }
+        }
     }
 }
